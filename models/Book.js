@@ -64,12 +64,39 @@ const bookSchema = new mongoose.Schema({
         min: [0, 'Rating cannot be less than 0'],
         max: [5, 'Rating cannot exceed 5'],
         default: 0
+    },
+    isPublic: {
+        type: Boolean,
+        default: true,
+        description: 'If false, only the creator can view this book'
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'Book must have a creator'],
+        index: true
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt automatically
+    timestamps: true
 });
 
-// Create index for search functionality
+// Create indexes for better query performance
 bookSchema.index({ title: 'text', author: 'text', genre: 1 });
+bookSchema.index({ createdBy: 1, createdAt: -1 });
+bookSchema.index({ isPublic: 1, createdAt: -1 });
+
+// Virtual for formatted price
+bookSchema.virtual('formattedPrice').get(function() {
+    return `$${this.price.toFixed(2)}`;
+});
+
+// Virtual for book age in years
+bookSchema.virtual('age').get(function() {
+    return new Date().getFullYear() - this.publishedYear;
+});
+
+// Ensure virtuals are included in JSON output
+bookSchema.set('toJSON', { virtuals: true });
+bookSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('Book', bookSchema);
