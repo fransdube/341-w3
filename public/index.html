@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore API - OAuth Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #357ae8;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .user-info {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Bookstore API - OAuth Test</h1>
+        
+        <div id="auth-buttons">
+            <button onclick="googleLogin()">Login with Google</button>
+            <button onclick="checkAuth()">Check Authentication</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+        
+        <div id="user-info"></div>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        
+        // Store token in localStorage
+        function setToken(token) {
+            localStorage.setItem('authToken', token);
+        }
+        
+        function getToken() {
+            return localStorage.getItem('authToken');
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('authToken');
+        }
+        
+        // Google Login - redirect to Google OAuth
+        function googleLogin() {
+            window.location.href = `${API_URL}/api/auth/google`;
+        }
+        
+        // Check if we have a token in URL (from OAuth redirect)
+        function handleOAuthRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const refreshToken = urlParams.get('refreshToken');
+            
+            if (token) {
+                setToken(token);
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                checkAuth();
+                showMessage('✅ Google login successful!', 'success');
+            }
+        }
+        
+        // Check current authentication
+        async function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                document.getElementById('user-info').innerHTML = '<p>❌ Not logged in</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayUserInfo(data.data);
+                } else {
+                    clearToken();
+                    document.getElementById('user-info').innerHTML = '<p class="error">❌ Session expired. Please login again.</p>';
+                }
+            } catch (error) {
+                console.error('Error checking auth:', error);
+            }
+        }
+        
+        // Logout
+        async function logout() {
+            const token = getToken();
+            if (!token) return;
+            
+            try {
+                await fetch(`${API_URL}/api/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            clearToken();
+            document.getElementById('user-info').innerHTML = '<p>✅ Logged out successfully</p>';
+            setTimeout(() => {
+                document.getElementById('user-info').innerHTML = '';
+            }, 2000);
+        }
+        
+        // Display user info
+        function displayUserInfo(user) {
+            const html = `
+                <div class="user-info">
+                    <h3>✅ Logged in as:</h3>
+                    <p><strong>Username:</strong> ${user.username}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Role:</strong> ${user.role}</p>
+                    <p><strong>Account Type:</strong> ${user.googleId ? 'Google Account' : 'Local Account'}</p>
+                    ${user.profilePicture ? `<img src="${user.profilePicture}" width="50" height="50" style="border-radius: 50%;">` : ''}
+                </div>
+            `;
+            document.getElementById('user-info').innerHTML = html;
+        }
+        
+        function showMessage(message, type) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = `<p class="${type}">${message}</p>`;
+            setTimeout(() => {
+                responseDiv.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Check for OAuth redirect on page load
+        handleOAuthRedirect();
+    </script>
+</body>
+</html>
