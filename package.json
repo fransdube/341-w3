@@ -1,7 +1,7 @@
 {
   "name": "bookstore-api",
   "version": "1.0.0",
-  "description": "RESTful API for bookstore with CRUD operations",
+  "description": "RESTful API for bookstore with CRUD operations and Swagger documentation",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,7 +12,9 @@
     "mongoose": "^8.0.0",
     "dotenv": "^16.3.1",
     "express-validator": "^7.0.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
