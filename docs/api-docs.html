@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookstore API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 15px;
+        }
+        
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .put { background: #fca130; color: white; }
+        .delete { background: #f93e3e; color: white; }
+        
+        .url {
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        h3 {
+            margin: 20px 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        h4 {
+            margin: 15px 0 5px 0;
+            color: #34495e;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #34495e;
+            color: white;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .required { background: #e74c3c; color: white; }
+        .optional { background: #95a5a6; color: white; }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 15px;
+            }
+            
+            .url {
+                font-size: 0.9rem;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Bookstore API Documentation</h1>
+            <p>RESTful API for managing books with full CRUD operations</p>
+            <p>Base URL: <code>https://your-render-app.onrender.com/api/books</code></p>
+        </header>
+        
+        <div class="content">
+            <h2>🔍 Overview</h2>
+            <p>This API provides endpoints to perform CRUD operations on a MongoDB database for a bookstore collection. All endpoints return JSON responses with proper HTTP status codes and error handling.</p>
+            
+            <h2>📋 Book Schema (7+ fields)</h2>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Validation</th>
+                </tr>
+                <tr><td>title</td><td>String</td><td>✅</td><td>1-200 characters</td></tr>
+                <tr><td>author</td><td>String</td><td>✅</td><td>2-100 characters</td></tr>
+                <tr><td>isbn</td><td>String</td><td>✅</td><td>Valid ISBN (10/13 digits)</td></tr>
+                <tr><td>publishedYear</td><td>Number</td><td>✅</td><td>1450-current year</td></tr>
+                <tr><td>genre</td><td>String</td><td>✅</td><td>Predefined genres only</td></tr>
+                <tr><td>price</td><td>Number</td><td>✅</td><td>0-10000</td></tr>
+                <tr><td>pageCount</td><td>Number</td><td>✅</td><td>1-5000</td></tr>
+                <tr><td>publisher</td><td>String</td><td>✅</td><td>Minimum 2 characters</td></tr>
+                <tr><td>inStock</td><td>Boolean</td><td>❌</td><td>Default: true</td></tr>
+                <tr><td>rating</td><td>Number</td><td>❌</td><td>0-5, default: 0</td></tr>
+            </table>
+            
+            <h2>🚀 Endpoints</h2>
+            
+            <!-- GET all books -->
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/books</span>
+                <p><strong>Description:</strong> Retrieve all books with filtering, sorting, and pagination</p>
+                
+                <h4>Query Parameters (optional):</h4>
+                <ul>
+                    <li><code>genre</code> - Filter by genre</li>
+                    <li><code>minPrice</code> - Minimum price filter</li>
+                    <li><code>maxPrice</code> - Maximum price filter</li>
+                    <li><code>inStock</code> - Filter by availability (true/false)</li>
+                    <li><code>sort</code> - Sort field:order (e.g., price:desc)</li>
+                    <li><code>page</code> - Page number (default: 1)</li>
+                    <li><code>limit</code> - Items per page (default: 10)</li>
+                </ul>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "count": 5,
+  "total": 25,
+  "page": 1,
+  "pages": 5,
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "isbn": "9780743273565",
+      "publishedYear": 1925,
+      "genre": "Fiction",
+      "price": 12.99,
+      "inStock": true,
+      "pageCount": 180,
+      "publisher": "Scribner",
+      "rating": 4.5
+    }
+  ]
+}</pre>
+            </div>
+            
+            <!-- GET single book -->
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/books/:id</span>
+                <p><strong>Description:</strong> Retrieve a single book by its MongoDB ID</p>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "isbn": "9780743273565",
+    "publishedYear": 1925,
+    "genre": "Fiction",
+    "price": 12.99,
+    "inStock": true,
+    "pageCount": 180,
+    "publisher": "Scribner",
+    "rating": 4.5
+  }
+}</pre>
+            </div>
+            
+            <!-- POST create book -->
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/api/books</span>
+                <p><strong>Description:</strong> Create a new book</p>
+                
+                <h4>Request Body (required fields):</h4>
+                <pre>{
+  "title": "To Kill a Mockingbird",
+  "author": "Harper Lee",
+  "isbn": "9780061120084",
+  "publishedYear": 1960,
+  "genre": "Fiction",
+  "price": 14.99,
+  "pageCount": 336,
+  "publisher": "J.B. Lippincott & Co.",
+  "inStock": true,
+  "rating": 4.8
+}</pre>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "message": "Book created successfully",
+  "data": {
+    "_id": "507f1f77bcf86cd799439012",
+    "title": "To Kill a Mockingbird",
+    ...
+  }
+}</pre>
+            </div>
+            
+            <!-- PUT update book -->
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="url">/api/books/:id</span>
+                <p><strong>Description:</strong> Update an existing book (partial updates allowed)</p>
+                
+                <h4>Example Request Body:</h4>
+                <pre>{
+  "price": 16.99,
+  "inStock": false
+}</pre>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "message": "Book updated successfully",
+  "data": { ...updated book... }
+}</pre>
+            </div>
+            
+            <!-- DELETE book -->
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <span class="url">/api/books/:id</span>
+                <p><strong>Description:</strong> Delete a book by ID</p>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "message": "Book deleted successfully",
+  "data": {
+    "id": "507f1f77bcf86cd799439011",
+    "title": "The Great Gatsby"
+  }
+}</pre>
+            </div>
+            
+            <!-- GET search -->
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="url">/api/books/search?q=keyword</span>
+                <p><strong>Description:</strong> Search books by title, author, or genre</p>
+                
+                <h4>Example Response:</h4>
+                <pre>{
+  "success": true,
+  "count": 3,
+  "data": [ ...matching books... ]
+}</pre>
+            </div>
+            
+            <h2>⚠️ Error Responses</h2>
+            <div class="endpoint">
+                <h4>400 Bad Request (Validation Error)</h4>
+                <pre>{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "price",
+      "message": "Price must be between 0 and 10000"
+    }
+  ]
+}</pre>
+                
+                <h4>404 Not Found</h4>
+                <pre>{
+  "success": false,
+  "message": "Book not found with id: 507f1f77bcf86cd799439999"
+}</pre>
+                
+                <h4>500 Server Error</h4>
+                <pre>{
+  "success": false,
+  "message": "Server Error"
+}</pre>
+            </div>
+            
+            <h2>📡 Testing with Postman</h2>
+            <ol>
+                <li>Import the base URL: <code>http://localhost:3000</code> (local) or your Render URL</li>
+                <li>Test POST: Body → raw → JSON</li>
+                <li>Test GET with query params: <code>/api/books?genre=Fiction&minPrice=10&sort=price:desc</code></li>
+                <li>Test PUT: Include book ID in URL</li>
+                <li>Test DELETE: Include book ID in URL</li>
+            </ol>
+            
+            <h2>🚀 Deployment on Render</h2>
+            <ol>
+                <li>Push code to GitHub</li>
+                <li>Create new Web Service on Render</li>
+                <li>Connect GitHub repository</li>
+                <li>Add environment variables:
+                    <ul>
+                        <li><code>MONGODB_URI</code> = your MongoDB connection string</li>
+                        <li><code>PORT</code> = 3000</li>
+                    </ul>
+                </li>
+                <li>Build command: <code>npm install</code></li>
+                <li>Start command: <code>node server.js</code></li>
+            </ol>
+        </div>
+        
+        <footer>
+            <p>✅ CRUD Operations Complete | ✅ Validation & Error Handling | ✅ MongoDB Integration</p>
+            <p>📅 Week 03 - Project 2 Part 1 | 🔜 Week 04: OAuth Authentication & Second Collection</p>
+        </footer>
+    </div>
+</body>
+</html>
