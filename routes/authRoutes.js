@@ -198,6 +198,8 @@ router.post('/refresh', refreshToken);
  *     responses:
  *       200:
  *         description: Profile updated
+ *       401:
+ *         description: Not authorized
  */
 router.put('/profile', protect, updateProfile);
 
@@ -226,6 +228,8 @@ router.put('/profile', protect, updateProfile);
  *     responses:
  *       200:
  *         description: Password changed
+ *       401:
+ *         description: Not authorized
  */
 router.put('/change-password', protect, changePassword);
 
@@ -240,6 +244,8 @@ router.put('/change-password', protect, changePassword);
  *     responses:
  *       302:
  *         description: Redirect to Google
+ *       401:
+ *         description: Not authorized
  */
 router.get('/google', 
     passport.authenticate('google', { 

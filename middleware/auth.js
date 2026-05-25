@@ -7,7 +7,7 @@ const protect = async (req, res, next) => {
     
     // Check for token in Authorization header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+        token = req.headers.authorization.substring(7).trim(); // Fix the split for cases with multiple spaces
     }
     
     // Check for token in cookie
@@ -83,7 +83,7 @@ const optionalAuth = async (req, res, next) => {
     let token;
     
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
+        token = req.headers.authorization.substring(7).trim();
     }
     
     if (token) {
